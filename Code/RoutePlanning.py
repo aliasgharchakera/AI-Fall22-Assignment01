@@ -6,38 +6,39 @@ from search import *
 class RoutePlanning:
 
     def __init__(self, start, goal):
-        self.graph = {}
+        self.connectionsGraph:dict = dict()
+        self.heuristicsGraph:dict = dict()
         self.start = start
         self.current = self.start
         self.goal = goal
+        self.cities:list = list()
         
-        files = ["cities.csv", "Connections.csv", "heuristics.csv"]
-        path = os.path.realpath(__file__) # Gives the path of demo.py    
-        dir = os.path.dirname(path) # Gives the directory where this .py exists
+        path = os.path.realpath(__file__)
+        dir = os.path.dirname(path)
         dir = dir.replace("Code", "CSV")
         os.chdir(dir)
-
-        for f in files:
-            with open(f) as file:
-                reader = csv.reader(file)
-                count = 0
-                for row in reader:
-                    if f == 'cities.csv':
-                        self.graph[row[0]] = {} # Add all the cities as keys in the dictionary
-                    elif f == 'Connections.csv':
-                        if count == 0:
-                            cities = row[1:] # Adding all the cities except for the first since it is same as key
-                        else:
-                            for i in range(len(row[1:])): # Ignore index 1 as it is the city name that is the key and not the weights/ distances
-                                self.graph[row[0]][cities[i]] = [int(row[i+1])] # {source1: {destination1: [distance], ...}, ...}
-                                # Row 0 is the respective city
-                    elif f == 'heuristics.csv':
-                        if count == 0:
-                            cities = row[1:]
-                        else:
-                            for i in range(len(cities)):
-                                self.graph[row[0]][cities[i]].append(int(row[i+1])) # {source1: {destination1: [distance, heuristic], ...}, ...}
-                    count += 1
+        notFirst = False
+        with open("cities.csv") as file:
+            for line in file:
+                line = line.strip()
+                self.cities.append(line)
+                self.connectionsGraph[line] = []
+                self.heuristicsGraph[line] = []
+        with open("Connections.csv") as file:
+            for line in file:
+                line = line.strip().split(",")
+                if notFirst:
+                    for i in range(len(self.cities)):
+                        self.connectionsGraph[line[0]].append(int(line[i + 1]))
+                notFirst = True
+        notFirst = False
+        with open("heuristics.csv") as file:
+            for line in file:
+                line = line.strip().split(",")
+                if notFirst:
+                    for i in range(len(self.cities)):
+                        self.heuristicsGraph[line[0]].append(int(line[i + 1]))
+                notFirst = True
 
 
     def getStartState(self):
@@ -53,7 +54,13 @@ class RoutePlanning:
         Returns True if and only if the state is a valid goal state.
         """
 
-        return state == self.goal       
+        return state == self.goal    
+    
+    def _stateIndex(self, state):
+        return self.cities.index(state)
+    
+    def _indexState(self, index):
+        return self.cities[index]
 
     def getSuccessors(self, state):
         """
@@ -65,10 +72,13 @@ class RoutePlanning:
         the incremental cost of expanding to that successor.
         """
         successors = []
-        for key in self.graph[state]:
+        # index = 0
+        for i in range(len(self.connectionsGraph[state])):
             # checking for a possible direct path
-            if self.graph[state][key][0] != 0 and self.graph[state][key][0] != -1: 
-                successors.append((key, "Move", self.graph[state][key][0]))
+            if self.connectionsGraph[state][i] != 0 and self.connectionsGraph[state][i] != -1: 
+                successor = self._indexState(i)
+                successors.append((successor, "Move", self.connectionsGraph[state][i]))
+            # index += 1
         return successors
 
     def getCostOfActions(self, actions):
@@ -79,7 +89,8 @@ class RoutePlanning:
         The sequence must be composed of legal moves.
         """
         # at the 0 index we have the current and at the 1 index we have the successor
-        return self.graph[actions[0]][actions[1]][0]
+        successor = self._stateIndex(actions[1])
+        return self.connectionsGraph[actions[0]][successor]
                        
     def getHeuristic(self,state):
         """
@@ -88,7 +99,11 @@ class RoutePlanning:
          THis function returns the heuristic of current state of the agent which will be the 
          estimated distance from goal.
         """
-        return self.graph[self.goal][state][1]
+        successor = self._stateIndex(state)
+        return self.heuristicsGraph[self.goal][successor]
     
-route = RoutePlanning("Muzaffarabad", "Khunjerab Pass")
+# route = RoutePlanning("Muzaffarabad", "Khunjerab Pass")
+# route = RoutePlanning("Islamabad", "Hunza")
+route = RoutePlanning("Kaghan", "Gilgit")
+
 print(aStarSearch(route))
