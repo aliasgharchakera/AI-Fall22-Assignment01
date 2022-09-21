@@ -178,43 +178,33 @@ class RoutePlanning:
 
     def __init__(self, cities, connection, heuristics, start, goal):
         self.cities:list = list()
-        self.connect_ref:list = list()
         self.connect_dict:dict = dict()
-        self.heuristic_ref:list = list()
         self.heuristic_dict:dict = dict()
 
         self.start = start
         self.goal = goal
         self.current:str = self.start
 
-        with open(cities) as citylist:
-            for line in citylist:
-                self.cities.append(line)
+        with open(cities) as f:
+            for city in f:
+                self.cities.append(city.strip())
 
-        with open(connection) as connectionlist:
+        with open(connection) as f:
             x = 0
-            for line in connectionlist:
-                if x == 0:   self.connect_ref = line.split(",")[1:-1]
-                else:
+            for line in f:
+                if x != 0:
                     my_line = line.split(",")
-                    self.connect_dict[my_line[0].strip()] = my_line[1:-1]
+                    self.connect_dict[my_line[0].strip()] = my_line[1:]
+                    # print(self.connect_dict[my_line[0]])
                 x = 1
 
-        with open(heuristics) as heuristicslist:
+        with open(heuristics) as f:
             x = 0
-            for line in heuristicslist:
-                if x == 0:   self.heuristic_ref = line.split(",")[1:-1]
-                else:
+            for line in f:
+                if x != 0:
                     my_line = line.split(",")
-                    self.heuristic_dict[my_line[0].strip()] = my_line[1:-1]
+                    self.heuristic_dict[my_line[0].strip()] = my_line[1:]
                 x = 1
-        
-        for x in range(len(self.connect_ref)):
-            self.connect_ref[x] = self.connect_ref[x].strip()
-            
-
-        for x in range(len(self.heuristic_ref)):
-            self.heuristic_ref[x] = self.heuristic_ref[x].strip()
 
 
     def getStartState(self):
@@ -248,7 +238,7 @@ class RoutePlanning:
 
         for i in range(len(temp)):
             if temp[i] != '-1' and temp[i]!= '0':
-                temp_tup = (self.connect_ref[i], 1, eval(temp[i]))
+                temp_tup = (self.cities[i], 1, eval(temp[i]))
                 connecs.append(temp_tup)
 
         return connecs
@@ -268,7 +258,7 @@ class RoutePlanning:
             tmp = actions[i]
             nxt = actions[i+1]
 
-            idx = self.connect_ref.index(nxt)
+            idx = self.cities.index(nxt)
             cost_list = self.connect_dict[temp]
             cost += int(cost_list[idx])
 
