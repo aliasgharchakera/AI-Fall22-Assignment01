@@ -72,13 +72,11 @@ class RoutePlanning:
         the incremental cost of expanding to that successor.
         """
         successors = []
-        # index = 0
         for i in range(len(self.connectionsGraph[state])):
             # checking for a possible direct path
-            if self.connectionsGraph[state][i] != 0 and self.connectionsGraph[state][i] != -1: 
+            if self.connectionsGraph[state][i] not in [-1, 0]: 
                 successor = self._indexState(i)
                 successors.append((successor, "Move", self.connectionsGraph[state][i]))
-            # index += 1
         return successors
 
     def getCostOfActions(self, actions):
