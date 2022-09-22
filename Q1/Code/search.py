@@ -92,37 +92,37 @@ def aStarSearch(problem: SearchProblem):
     priorityQueue.push(start, 0)
 
     # Maintaining path and cost using dictionary
-    origin = {start: None}
-    totalCost = {start: 0}
+    cost_dict = {start: None}
+    total = {start: 0}
 
     path = []
 
-    while not priorityQueue.isEmpty(): # While list is non empty
+    while not priorityQueue.isEmpty():
         problem.current = priorityQueue.pop() # Take state from priorityQueue
 
         if problem.isGoalState(problem.current): # If goal state acheived
             break
 
         for successor in problem.getSuccessors(problem.current):
-            successor = successor[0]
-            newCost = totalCost[problem.current] + problem.getCostOfActions([problem.current, successor]) # Update cost by adding step cost
+            successor = successor[0] # since it is a triplet
+            updated_cost = total[problem.current] + problem.getCostOfActions([problem.current, successor])
 
-            if successor not in totalCost or newCost < totalCost[successor]:
-                totalCost[successor] = newCost # Add or update successor cost depending on whether it existed
-                priority = newCost + problem.getHeuristic(successor)
+            if successor not in total or updated_cost < total[successor]:
+                total[successor] = updated_cost 
+                priority = updated_cost + problem.getHeuristic(successor)
                 priorityQueue.update(successor, priority)
-                origin[successor] = problem.current
+                cost_dict[successor] = problem.current
 
         if not problem.isGoalState(problem.current):
             goal = problem.goal
-            while goal in origin:
+            while goal in cost_dict:
                 path.append(goal)
-                goal = origin[goal]
+                goal = cost_dict[goal]
 
     path = path[::-1]
     path = path[:path.index(problem.goal)+1] # Just select the first path 
 
-    return path, totalCost[problem.goal]
+    return path, total[problem.goal]
 
  
 
