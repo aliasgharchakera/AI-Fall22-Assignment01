@@ -86,7 +86,7 @@ class JumpingFrogs():
                     if state[j] == "b":
                         heuristic += j
             
-            if state[i] != "g" and i > 3:
+            elif state[i] != "g" and i > 3:
                 for j in range(i):
                     if state[j] == "g":
                         heuristic += (i-j)
