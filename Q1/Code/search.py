@@ -97,7 +97,6 @@ def aStarSearch(problem: SearchProblem):
     path = []
     while not priorityQueue.isEmpty():
         problem.current = priorityQueue.pop()
-        print(total)
         if problem.isGoalState(problem.current):
             break
 
