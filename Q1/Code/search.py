@@ -88,38 +88,38 @@ def aStarSearch(problem: SearchProblem):
     "*** YOUR A* CODE HERE ***"
 
     start = problem.getStartState()
+    goal = problem.goal
     priorityQueue = util.PriorityQueue()
     priorityQueue.push(start, 0)
 
     cost_dict = {start: None}
     total = {start: 0}
-
     path = []
-
     while not priorityQueue.isEmpty():
         problem.current = priorityQueue.pop()
-
+        print(total)
         if problem.isGoalState(problem.current):
             break
 
         for successor in problem.getSuccessors(problem.current):
             successor = successor[0] # since it is a triplet
-            updated_cost = total[problem.current] + problem.getCostOfActions([problem.current, successor])
+            cost = problem.getCostOfActions([problem.current, successor])
+            updated_cost = total[problem.current] + cost
 
             if successor not in total.keys() or updated_cost < total[successor]:
-                total[successor] = updated_cost 
-                priority = updated_cost + problem.getHeuristic(successor)
+                total[successor] = updated_cost
+                heuristic = problem.getHeuristic(successor)
+                priority = updated_cost + heuristic
                 cost_dict[successor] = problem.current
                 priorityQueue.update(successor, priority)
 
         if not problem.isGoalState(problem.current):
-            goal = problem.goal
             while goal in cost_dict.keys():
                 path.append(goal)
                 goal = cost_dict[goal]
 
     path = path[::-1]
-    path = path[:path.index(problem.goal)+1]
+    path = path[:path.index(problem.goal) + 1]
 
     return path, total[problem.goal]
 
